@@ -1,62 +1,55 @@
 <?php
 
 namespace Opencart\Catalog\Controller\Extension\OcnCategoryWall\Module;
-
 class CategoryWall extends \Opencart\System\Engine\Controller
 {
 	public function index(): string
 	{
 		$this->load->language('extension/ocn_category_wall/module/category_wall');
-
-		if (isset($this->session->data['module_method'])) {
-			$data['logged'] = $this->customer->isLogged();
-			$data['subscription'] = $this->cart->hasSubscription();
-
-			$data['months'] = [];
-
-			foreach (range(1, 12) as $month) {
-				$data['months'][] = date('m', mktime(0, 0, 0, $month, 1));
+		
+		$isShowDescription = $this->config->get('module_ocn_category_wall_description_status');
+		$isShowSubCategory = $this->config->get('module_ocn_category_wall_subcategory_status');
+		
+		$data = [];
+		
+		$this->load->model('catalog/category');
+		$this->load->model('catalog/product');
+		
+		$results = $this->model_catalog_category->getCategories();
+		
+		foreach ($results as $result) {
+			if (is_file(DIR_IMAGE . html_entity_decode($result['image'], ENT_QUOTES, 'UTF-8'))) {
+				$image = $this->model_tool_image->resize(html_entity_decode($result['image'], ENT_QUOTES, 'UTF-8'), $this->config->get('module_ocn_category_wall_image_width'), $this->config->get('module_ocn_category_wall_image_height'));
+			} else {
+				$image = $this->model_tool_image->resize('placeholder.png', $this->config->get('module_ocn_category_wall_image_width'), $this->config->get('module_ocn_category_wall_image_height'));
 			}
-
-			$data['years'] = [];
-
-			foreach (range(date('Y'), date('Y', strtotime('+10 year'))) as $year) {
-				$data['years'][] = $year;
+			
+			$children = [];
+			if ($isShowSubCategory) {
+				$childrenResults = $this->model_catalog_category->getCategories($result['category_id']);
+				foreach ($childrenResults as $child) {
+					$children[] = [
+						'name' => $child['name'],
+						'href' => $this->url->link('product/category', 'language=' . $this->config->get('config_language') . '&path=' . $result['category_id'] . '_' . $child['category_id']),
+					];
+				}
 			}
-
-			$data['language'] = $this->config->get('config_language');
-
-			return $this->load->view('extension/ocn_category_wall/module/category_wall', $data);
+			
+			$category = [
+				'category_id' => $result['category_id'],
+				'parent_id' => $result['parent_id'],
+				'name' => $result['name'],
+				'description' => $result['description'] ? oc_substr(trim(strip_tags(html_entity_decode($result['description'], ENT_QUOTES, 'UTF-8'))), 0, $this->config->get('config_product_description_length')) . '..' : '',
+				'thumb' => $image,
+				'href' => $this->url->link('product/category', 'language=' . $this->config->get('config_language') . '&path=' . $result['category_id']),
+				'isShowDescription' => $isShowDescription,
+				'isShowSubCategory' => $isShowSubCategory,
+				'children' => $children,
+			];
+			
+			$data['categories'][] = $this->load->view('extension/ocn_category_wall/module/category_thumb', $category);
 		}
-
-		return '';
-	}
-
-	public function confirm(): void
-	{
-		$this->load->language('extension/ocn_category_wall/module/category_wall');
-
-		$this->response->addHeader('Content-Type: application/json');
-		$this->response->setOutput(json_encode($json));
-	}
-
-	public function stored(): void
-	{
-		$this->load->language('extension/ocn_category_wall/module/category_wall');
-
-		$json = [];
-
-		$this->response->addHeader('Content-Type: application/json');
-		$this->response->setOutput(json_encode($json));
-	}
-
-	public function delete(): void
-	{
-		$this->load->language('extension/ocn_category_wall/module/category_wall');
-
-		$json = [];
-
-		$this->response->addHeader('Content-Type: application/json');
-		$this->response->setOutput(json_encode($json));
+		
+		return $this->load->view('extension/ocn_category_wall/module/category_wall', $data);
 	}
 }

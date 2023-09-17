@@ -1,3 +1,3 @@
 <?php
 // Heading
-$_['heading_title']      = 'Стена категорий';
+$_['heading_title'] = 'Стена категорий';

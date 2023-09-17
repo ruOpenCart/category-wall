@@ -1,3 +1,3 @@
 <?php
 // Heading
-$_['heading_title']      = 'Category Wall';
+$_['heading_title'] = 'Category Wall';
