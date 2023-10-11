@@ -1,29 +1,30 @@
 <?php
 
 namespace Opencart\Catalog\Controller\Extension\OcnCategoryWall\Module;
-class CategoryWall extends \Opencart\System\Engine\Controller
+
+class OcnCategoryWall extends \Opencart\System\Engine\Controller
 {
 	public function index(): string
 	{
-		$this->load->language('extension/ocn_category_wall/module/category_wall');
-		
+		$this->load->language('extension/ocn_category_wall/module/ocn_category_wall');
+
 		$isShowDescription = $this->config->get('module_ocn_category_wall_description_status');
 		$isShowSubCategory = $this->config->get('module_ocn_category_wall_subcategory_status');
-		
+
 		$data = [];
-		
+
 		$this->load->model('catalog/category');
 		$this->load->model('catalog/product');
-		
+
 		$results = $this->model_catalog_category->getCategories();
-		
+
 		foreach ($results as $result) {
 			if (is_file(DIR_IMAGE . html_entity_decode($result['image'], ENT_QUOTES, 'UTF-8'))) {
 				$image = $this->model_tool_image->resize(html_entity_decode($result['image'], ENT_QUOTES, 'UTF-8'), $this->config->get('module_ocn_category_wall_image_width'), $this->config->get('module_ocn_category_wall_image_height'));
 			} else {
 				$image = $this->model_tool_image->resize('placeholder.png', $this->config->get('module_ocn_category_wall_image_width'), $this->config->get('module_ocn_category_wall_image_height'));
 			}
-			
+
 			$children = [];
 			if ($isShowSubCategory) {
 				$childrenResults = $this->model_catalog_category->getCategories($result['category_id']);
@@ -34,7 +35,7 @@ class CategoryWall extends \Opencart\System\Engine\Controller
 					];
 				}
 			}
-			
+
 			$category = [
 				'category_id' => $result['category_id'],
 				'parent_id' => $result['parent_id'],
@@ -46,10 +47,10 @@ class CategoryWall extends \Opencart\System\Engine\Controller
 				'isShowSubCategory' => $isShowSubCategory,
 				'children' => $children,
 			];
-			
-			$data['categories'][] = $this->load->view('extension/ocn_category_wall/module/category_thumb', $category);
+
+			$data['categories'][] = $this->load->view('extension/ocn_category_wall/module/ocn_category_thumb', $category);
 		}
-		
-		return $this->load->view('extension/ocn_category_wall/module/category_wall', $data);
+
+		return $this->load->view('extension/ocn_category_wall/module/ocn_category_wall', $data);
 	}
 }

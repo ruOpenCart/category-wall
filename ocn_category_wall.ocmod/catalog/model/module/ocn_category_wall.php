@@ -1,4 +1,7 @@
 <?php
+
 namespace Opencart\Catalog\Model\Extension\OcnCategoryWall\Module;
-class CategoryWall extends \Opencart\System\Engine\Model {
+
+class OcnCategoryWall extends \Opencart\System\Engine\Model
+{
 }

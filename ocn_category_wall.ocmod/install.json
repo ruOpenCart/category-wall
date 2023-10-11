@@ -1,7 +1,7 @@
 {
   "name": "[OCN] Category Wall",
-  "code": "ocn_module_category_wall",
-  "version": "4.0.0.0",
+  "code": "ocn_category_wall",
+  "version": "4.0.0.1",
   "author": "Hkr",
   "link": "https://forum.opencart.name/"
 }
