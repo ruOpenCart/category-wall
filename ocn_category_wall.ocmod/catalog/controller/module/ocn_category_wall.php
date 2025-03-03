@@ -11,13 +11,12 @@ class OcnCategoryWall extends \Opencart\System\Engine\Controller
 		$isShowDescription = $this->config->get('module_ocn_category_wall_description_status');
 		$isShowSubCategory = $this->config->get('module_ocn_category_wall_subcategory_status');
 
-		$data = [];
-
+		$this->load->model('tool/image');
 		$this->load->model('catalog/category');
 		$this->load->model('catalog/product');
 
+		$data = [];
 		$results = $this->model_catalog_category->getCategories();
-
 		foreach ($results as $result) {
 			if (is_file(DIR_IMAGE . html_entity_decode($result['image'], ENT_QUOTES, 'UTF-8'))) {
 				$image = $this->model_tool_image->resize(html_entity_decode($result['image'], ENT_QUOTES, 'UTF-8'), $this->config->get('module_ocn_category_wall_image_width'), $this->config->get('module_ocn_category_wall_image_height'));
